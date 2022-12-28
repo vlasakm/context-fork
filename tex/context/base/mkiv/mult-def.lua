@@ -10634,6 +10634,9 @@ return {
    ["pe"]="آفست",
    ["ro"]="offset",
   },
+  ["opacity"]={
+   ["en"]="opacity",
+  },
   ["openaction"]={
    ["cs"]="otevriakci",
    ["de"]="oeffenaktion",
@@ -19480,6 +19483,9 @@ return {
   ["vfenced"]={
    ["en"]="vfenced",
    ["fr"]="cloturev",
+  },
+  ["volume"]={
+   ["en"]="volume",
   },
   ["vulgarfraction"]={
    ["en"]="vulgarfraction",

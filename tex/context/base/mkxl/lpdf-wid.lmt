@@ -64,6 +64,10 @@ local v_no                     = variables.no
 local v_compress               = variables.compress
 local v_list                   = variables.list
 local v_title                  = variables.title
+local v_controls               = variables.controls
+local v_volume                 = variables.volume
+local v_repeat                 = variables["repeat"]
+local v_opacity                = variables.opacity
 
 local lpdf                     = lpdf
 
@@ -713,7 +717,7 @@ local function insertrendering(specification)
          --          B = start,
          --     }
          -- }
-            local parameters = pdfdictionary {
+            local permissions = pdfdictionary {
                 Type = pdfconstant("MediaPermissions"),
                 TF   = pdfstring("TEMPALWAYS"), -- TEMPNEVER TEMPEXTRACT TEMPACCESS TEMPALWAYS / needed for acrobat/wmp
             }
@@ -733,6 +737,20 @@ local function insertrendering(specification)
                     forcereference = option[v_list] ~= v_no,
                 }
             end
+            local media_play_params = pdfdictionary {
+                Type = pdfconstant("MediaPlayParams"),
+                BE   = pdfdictionary {
+                    C  = option[v_controls] and option[v_controls] ~= v_no or false,
+                    V  = tonumber(option[v_volume]) or 100,
+                    RC = tonumber(option[v_repeat]) or 1,
+                },
+            }
+            local media_screen_params = pdfdictionary {
+                Type = pdfconstant("MediaScreenParams"),
+                BE   = pdfdictionary {
+                    O = tonumber(option[v_opacity]) or 1.0,
+                },
+            }
             local clip = pdfdictionary {
                 Type = pdfconstant("MediaClip"),
                 S    = pdfconstant("MCD"),
@@ -740,13 +758,15 @@ local function insertrendering(specification)
                 CT   = mimetype,
                 Alt  = pdfarray { "", "file not found" }, -- language id + message
                 D    = descriptor,
-                P    = pdfreference(pdfflushobject(parameters)),
+                P    = pdfreference(pdfflushobject(permissions)),
             }
             local rendition = pdfdictionary {
                 Type = pdfconstant("Rendition"),
                 S    = pdfconstant("MR"),
                 N    = pdfunicode(label),
                 C    = pdfreference(pdfflushobject(clip)),
+                P    = media_play_params,
+                SP   = media_screen_params,
             }
             mf[label] = pdfreference(pdfflushobject(rendition))
         end
